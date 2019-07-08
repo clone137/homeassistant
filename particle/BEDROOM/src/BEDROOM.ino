@@ -130,7 +130,6 @@ void loop() {
   else
     client.connect(System.deviceID());
 
-  client.subscribe("kios/mqtt");
   // PIR
   // if the sensor is calibrated
   if (calibrated()) {
@@ -176,20 +175,6 @@ void setPIRLED(int state) {
 
 void setMQTTLED(int state) {
   digitalWrite(mqttLedPin, state);
-}
-
-void flashLED() {
-  digitalWrite(pirLedPin, HIGH);
-  digitalWrite(pirLedPin, LOW);
-  digitalWrite(pirLedPin, HIGH);
-  digitalWrite(pirLedPin, LOW);
-  digitalWrite(pirLedPin, HIGH);
-  digitalWrite(pirLedPin, LOW);
-  digitalWrite(pirLedPin, HIGH);
-  digitalWrite(pirLedPin, LOW);
-  digitalWrite(pirLedPin, HIGH);
-  digitalWrite(pirLedPin, LOW);
-  digitalWrite(pirLedPin, HIGH);
 }
 
 void publishPirData() {
