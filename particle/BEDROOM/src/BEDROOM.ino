@@ -48,7 +48,7 @@ uint32_t        now;
 uint32_t        msLastMetric;
 uint32_t        msLastSample;
 uint32_t        mqttLastMetric;
-const uint32_t  ms_INTERVAL         = 15000;
+const uint32_t  ms_INTERVAL         = 30000;
 const uint32_t  mqtt_INTERVAL       = 60000;
 
 // MQTT
@@ -89,7 +89,6 @@ double          lastdht22Fahrenheit;
 double          lastdht22Kelvin;
 double          lastdht22DewPoint;
 double          lastdht22DewPointSlow;
-
 
 void callback(char* topic, byte* payload, unsigned int length) {
   char p[length + 1];
@@ -191,7 +190,7 @@ void publishPirData() {
     // announce this change by publishing an event
     if (pirState == LOW) {
       // we have just turned on
- //     Particle.publish("PIR", "motion", PRIVATE);
+//      Particle.publish("PIR", "motion", PRIVATE);
       client.publish("stat/bedroom/PIR", "motion");
       // Update the current state
       pirState = HIGH;
