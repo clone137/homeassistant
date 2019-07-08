@@ -106,20 +106,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   // setup the PIR
   pinMode(pirLedPin, OUTPUT);
-  pinMode(mqttLedPin, OUTPUT);
-  pinMode(pirInputPin, INPUT);                              // declare sensor as input
-
-  // setup the DS18B20
-  Particle.variable("temperature", &celsius, DOUBLE);
+  pinMode(pirInputPin, INPUT);
 
   // setup the LDR
   pinMode(ldrPin, INPUT);
-  Particle.variable("lightlevel", &ldrReading, DOUBLE);
 
   // setup the DHT22/AM2302
   DHT.begin();
 
   // setup MQTT
+  pinMode(mqttLedPin, OUTPUT);
   client.connect(System.deviceID());
   if (client.isConnected()) {
     client.publish("stat/bedroom", "startup");
