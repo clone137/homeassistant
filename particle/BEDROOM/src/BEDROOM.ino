@@ -1,32 +1,39 @@
-//STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));                  // select the u.FL antenna
+/*
+ * Project BEDROOM
+ * Description:
+ * Author:
+ * Date:
+ */
+
+STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));                  // select the u.FL antenna
 
 /*
-    Currently installed on "LOUNGE"
+    Currently installed on "BEDROOM"
 
-	Wiring
-	------
+    Wiring
+    ------
     PIR Vcc to PHOTON pin 3v3
-	PIR GND to PHOTON pin GND
-	PIR OUT to PHOTON pin D2
-	
-	PIR LED + to PHOTON pin D0
-	PIR LED - to PHOTON pin GND
+    PIR GND to PHOTON pin GND
+    PIR OUT to PHOTON pin D2
+
+    PIR LED + to PHOTON pin D0
+    PIR LED - to PHOTON pin GND
 
     MQTT LED + to PHOTON pin D4
     MQTT LED - to PHOTON pin GND
 
-	DS18B20 Vcc to PHOTON pin 3v3
-	DS18B20 GND to PHOTON pin GND
-	DS18B20 OUT to PHOTON pin D3
-	
-	LDR Vcc to PHOTON pin 3v3
-	LDR GND to PHOTON pin GND
-	LDR A0 to PHOTON pin A0
+    DS18B20 Vcc to PHOTON pin 3v3
+    DS18B20 GND to PHOTON pin GND
+    DS18B20 OUT to PHOTON pin D3
+
+    LDR Vcc to PHOTON pin 3v3
+    LDR GND to PHOTON pin GND
+    LDR A0 to PHOTON pin A0
 
     DHT22 pin 1 to PHOTON pin +5V
-	DHT22 pin 2 to PHOTON pin DHTPIN
-	DHT22 pin 4 to PHOTON pin GND
-	10k resistor between pin 1 (+5V) and pin 2 (data)
+    DHT22 pin 2 to PHOTON pin DHTPIN
+    DHT22 pin 4 to PHOTON pin GND
+    10k resistor between pin 1 (+5V) and pin 2 (data)
 */
 
 #include "MQTT.h"
@@ -115,7 +122,7 @@ void setup() {
   // setup MQTT
   client.connect(System.deviceID());
   if (client.isConnected()) {
-    client.publish("stat/lounge", "startup");
+    client.publish("stat/bedroom", "startup");
     client.subscribe("kios/mqtt");
   }
 }
@@ -127,6 +134,7 @@ void loop() {
   else
     client.connect(System.deviceID());
 
+  client.subscribe("kios/mqtt");
   // PIR
   // if the sensor is calibrated
   if (calibrated()) {
@@ -174,6 +182,20 @@ void setMQTTLED(int state) {
   digitalWrite(mqttLedPin, state);
 }
 
+void flashLED() {
+  digitalWrite(pirLedPin, HIGH);
+  digitalWrite(pirLedPin, LOW);
+  digitalWrite(pirLedPin, HIGH);
+  digitalWrite(pirLedPin, LOW);
+  digitalWrite(pirLedPin, HIGH);
+  digitalWrite(pirLedPin, LOW);
+  digitalWrite(pirLedPin, HIGH);
+  digitalWrite(pirLedPin, LOW);
+  digitalWrite(pirLedPin, HIGH);
+  digitalWrite(pirLedPin, LOW);
+  digitalWrite(pirLedPin, HIGH);
+}
+
 void publishPirData() {
   if (pirVal == HIGH) {
     // the current state is no motion
@@ -182,7 +204,7 @@ void publishPirData() {
     if (pirState == LOW) {
       // we have just turned on
       Particle.publish("PIR", "motion", PRIVATE);
-      client.publish("stat/lounge/PIR", "motion");
+      client.publish("stat/bedroom/PIR", "motion");
       // Update the current state
       pirState = HIGH;
       setPIRLED(pirState);
@@ -192,7 +214,7 @@ void publishPirData() {
       // we have just turned of
       // Update the current state
       Particle.publish("PIR", "no motion", PRIVATE);
-      client.publish("stat/lounge/PIR", "still");
+      client.publish("stat/bedroom/PIR", "still");
       pirState = LOW;
       setPIRLED(pirState);
     }
@@ -202,43 +224,43 @@ void publishPirData() {
 void publishDs18b20Data() {
   sprintf(ds18b20Info, "%2.1f", celsius);
   Particle.publish("temperature", ds18b20Info, PRIVATE);
-  client.publish("stat/lounge/TEMPERATURE", ds18b20Info);
+  client.publish("stat/bedroom/TEMPERATURE", ds18b20Info);
 }
 
 void publishLdrData() {
   sprintf(ldrInfo, "%2.0f", ldrReading);
   Particle.publish("lightlevel", ldrInfo, PRIVATE);
-  client.publish("stat/lounge/LIGHTLEVEL", ldrInfo);
+  client.publish("stat/bedroom/LIGHTLEVEL", ldrInfo);
 }
 
 void publishDht22Data() {
   dht22Reading = DHT.getHumidity();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22Humidity", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22HUMIDITY", dht22Info);
+  client.publish("stat/bedroom/DHT22HUMIDITY", dht22Info);
 
   dht22Reading = DHT.getCelsius();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22Celsius", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22CELSIUS", dht22Info);
+  client.publish("stat/bedroom/DHT22CELSIUS", dht22Info);
 
   dht22Reading = DHT.getFahrenheit();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22Fahrenheit", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22FAHRENHEIT", dht22Info);
+  client.publish("stat/bedroom/DHT22FAHRENHEIT", dht22Info);
 
   dht22Reading = DHT.getKelvin();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22Kelvin", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22KELVIN", dht22Info);
+  client.publish("stat/bedroom/DHT22KELVIN", dht22Info);
 
   dht22Reading = DHT.getDewPoint();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22DewPoint", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22DEWPOINT", dht22Info);
+  client.publish("stat/bedroom/DHT22DEWPOINT", dht22Info);
 
   dht22Reading = DHT.getDewPointSlow();
   sprintf(dht22Info, "%2.1f", dht22Reading);
   Particle.publish("dht22DewPointSlow", dht22Info, PRIVATE);
-  client.publish("stat/lounge/DHT22DEWPOINTSLOW", dht22Info);
+  client.publish("stat/bedroom/DHT22DEWPOINTSLOW", dht22Info);
 }

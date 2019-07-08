@@ -198,4 +198,3 @@ public:
 };
 
 #endif  // __MQTT_H_
-

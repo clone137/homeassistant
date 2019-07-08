@@ -535,4 +535,3 @@ void MQTT::clear() {
   _client.stop();
   lastInActivity = lastOutActivity = millis();
 }
-
