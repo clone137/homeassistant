@@ -48,8 +48,6 @@ uint32_t        now;
 uint32_t        msLastMetric;
 uint32_t        msLastSample;
 uint32_t        mqttLastMetric;
-const uint32_t  msSAMPLE_INTERVAL   = 5000;
-const uint32_t  msMETRIC_PUBLISH    = 10000;
 const uint32_t  ms_INTERVAL         = 15000;
 const uint32_t  mqtt_INTERVAL       = 60000;
 
@@ -70,6 +68,7 @@ int             calibrateTime       = 5000;                 // wait for the thin
 // DS18B20 variables
 char            ds18b20Info[64];
 double          celsius;
+double          lastcelsius;
 const int       MAXRETRY            = 4;
 DS18            ds18b20(D3);
 
@@ -84,6 +83,12 @@ char            ldrInfo[64];
 PietteTech_DHT  DHT(DHTPIN, DHTTYPE);
 double          dht22Reading;
 char            dht22Info[64];
+double          lastdht22Humidity;
+double          lastdht22Celsius;
+double          lastdht22Fahrenheit;
+double          lastdht22Kelvin;
+double          lastdht22DewPoint;
+double          lastdht22DewPointSlow;
 
 void callback(char* topic, byte* payload, unsigned int length) {
   char p[length + 1];
@@ -148,10 +153,11 @@ void loop() {
       return;
     }
 
-    DHT.acquireAndWait(1000);               // wait up to 1 sec (default indefinitely)
+    DHT.acquireAndWait(2000);               // wait up to 2 secs (default indefinitely)
     ldrReading  = analogRead (ldrPin);
     msLastSample = millis();
     publishDs18b20Data();
+    lastcelsius = celsius;                  // store the last celsius value for comparison
     publishLdrData();
     publishDht22Data();
     msLastMetric = millis();
@@ -184,7 +190,7 @@ void publishPirData() {
     // announce this change by publishing an event
     if (pirState == LOW) {
       // we have just turned on
-      Particle.publish("PIR", "motion", PRIVATE);
+//      Particle.publish("PIR", "motion", PRIVATE);
       client.publish("stat/lounge/PIR", "motion");
       // Update the current state
       pirState = HIGH;
@@ -194,7 +200,7 @@ void publishPirData() {
     if (pirState == HIGH) {
       // we have just turned of
       // Update the current state
-      Particle.publish("PIR", "no motion", PRIVATE);
+//      Particle.publish("PIR", "no motion", PRIVATE);
       client.publish("stat/lounge/PIR", "still");
       pirState = LOW;
       setPIRLED(pirState);
@@ -203,6 +209,9 @@ void publishPirData() {
 }
 
 void publishDs18b20Data() {
+  if ((celsius < (lastcelsius - 10)) | (celsius > (lastcelsius + 10))) {
+    return;
+  }
   sprintf(ds18b20Info, "%2.1f", celsius);
   Particle.publish("temperature", ds18b20Info, PRIVATE);
   client.publish("stat/lounge/TEMPERATURE", ds18b20Info);
